@@ -2,7 +2,7 @@
 
 A small library to make managing, layering and mixing individual canvas drawings easy and performant*.
 
-* As close to the performance of rendering each canvas drawing manually. See demo [basic](demo/basic.html) vs [vanilla](demo/vanilla.html).
+\* As close to the performance of rendering each canvas drawing manually. See demo [basic](demo/basic.html) vs [vanilla](demo/vanilla.html).
 
 ## How to use
 
