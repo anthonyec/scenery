@@ -1,0 +1,60 @@
+<style>
+  canvas {
+    outline: 1px solid red;
+  }
+</style>
+
+<canvas width="500" height="500"></canvas>
+
+<script src="../dist/scenebox.js"></script>
+
+<script>
+  const { Scene, SceneObject } = SceneBox;
+  const scene = new Scene({
+    canvas: document.querySelector('canvas')
+  });
+
+  const rectangle = new SceneObject({
+    draw: ({ context, x, y, width, height, color }) => {
+      context.fillStyle = color;
+      context.fillRect(x, y, width, height);
+    }
+  });
+
+  const rectangle2 = new SceneObject({
+    draw: ({ context, x, y, width, height, color }) => {
+      context.fillStyle = color;
+      context.fillRect(x, y, width, height);
+    }
+  });
+
+  scene.add(rectangle);
+  scene.add(rectangle2);
+
+  rectangle.update({ x: 20, y: 20, color: 'green' });
+  rectangle2.update({ x: 10, y: 10, color: 'blue' });
+
+  let lastDrawTime = 0;
+  const fps = 60;
+
+  function draw() {
+    if ((Date.now() - lastDrawTime) > 1000 / fps) {
+      scene.draw();
+      rectangle.update({ x: Math.random() * 400, y: Math.random() * 400, color: 'green' });
+      // rectangle2.update({ x: Math.random() * 400, y: Math.random() * 400, color: 'blue' });
+
+      lastDrawTime = Date.now();
+    }
+
+    window.requestAnimationFrame(draw);
+  }
+
+  // setInterval(() => {
+  //   draw();
+  // }, 500);
+
+  draw();
+  scene.draw();
+
+  // Basic avgerage time to render: 0.04ms - 0.05ms
+</script>

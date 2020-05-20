@@ -1,0 +1,57 @@
+<canvas width="500" height="500"></canvas>
+
+<script>
+  function createTimeTracker(samples = 50, budget = 16) {
+    let index = 0;
+    const times = new Array(samples).fill(0);
+
+    return (time) => {
+      times[index] = time;
+
+      if (index >= times.length - 1) {
+        index = 0;
+      } else {
+        index += 1;
+      }
+
+      const total = times.reduce((mem, value) => {
+        return mem + value;
+      }, 0);
+
+      const average = total / times.length;
+      const costPercent = ((average / budget) * 100).toFixed(1) + '%';
+
+      console.log('average (ms):', average.toFixed(2), 'cost:', costPercent);
+    }
+  }
+
+  const track = createTimeTracker(50, 10);
+
+  const context = document.querySelector('canvas').getContext('2d');
+
+  function draw() {
+    var start = window.performance.now();
+    context.clearRect(0, 0, 500, 500);
+
+    context.fillStyle = 'blue';
+    context.fillRect(Math.random() * 0, Math.random() * 0, 100, 100);
+
+    context.fillStyle = 'green';
+    context.fillRect(Math.random() * 400, Math.random() * 400, 100, 100);
+
+    var end = window.performance.now();
+    var time = end - start;
+
+    track(time);
+
+    window.requestAnimationFrame(draw);
+  }
+
+  // setInterval(() => {
+  //   draw();
+  // }, 500);
+
+  draw();
+
+  // Vanilla avgerage time to render: 0.03ms - 0.04ms
+</script>
