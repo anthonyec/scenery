@@ -39,6 +39,21 @@ rectangle.update({
 scene.draw();
 ```
 
+## API
+### `Scene()`
+#### `init()`
+#### `draw()`
+#### `add()`
+#### `get()`
+#### `getAll()`
+#### `query()`
+#### `hit()`
+#### `hitWithinBounds()`
+
+### `SceneObject()`
+#### `update()`
+#### `draw()`
+
 ## Behind the scenes
 
 ### Dirty rectangles
