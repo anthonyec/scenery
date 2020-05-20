@@ -1,4 +1,4 @@
-# Scenery
+# 🖼 Scenery
 
 A small library to make managing, layering and mixing individual canvas drawings easy and performant*.
 
