@@ -82,10 +82,6 @@ export default class Scene extends EventEmitter {
     const objects = this.getAll();
 
     return objects.filter((object) => {
-      if (object.id === 'object_0') {
-        return;
-      }
-
       const leftEdgeA = x;
       const rightEdgeA = x + width
 

@@ -1,3 +1,9 @@
+<style>
+  canvas {
+    outline: 1px solid blue;
+  }
+</style>
+
 <canvas width="500" height="500"></canvas>
 
 <script>
@@ -34,10 +40,15 @@
     context.clearRect(0, 0, 500, 500);
 
     context.fillStyle = 'blue';
-    context.fillRect(Math.random() * 0, Math.random() * 0, 100, 100);
+
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
+        context.fillRect(5 * x, 5 * y, 2, 2);
+      }
+    }
 
     context.fillStyle = 'green';
-    context.fillRect(Math.random() * 400, Math.random() * 400, 100, 100);
+    context.fillRect(Math.random() * 300, Math.random() * 300, 100, 100);
 
     var end = window.performance.now();
     var time = end - start;

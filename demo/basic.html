@@ -14,30 +14,31 @@
     canvas: document.querySelector('canvas')
   });
 
-  const object = {
+  const grid = new SceneObject({
     draw: ({ context, x, y, width, height, color }) => {
-      console.log('draw rectangle');
+      const colors = ['red', 'blue', 'green', 'purple'];
+      context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
+
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 20; x++) {
+          context.fillRect(5 * x, 5 * y, 2, 2);
+        }
+      }
+    }
+  });
+
+  const rectangle = new SceneObject({
+    draw: ({ context, x, y, width, height, color }) => {
       context.fillStyle = color;
       context.fillRect(x, y, width, height);
     }
-  };
+  });
 
-  const rectangle1 = new SceneObject(object);
-  const rectangle2 = new SceneObject(object);
-  const rectangle3 = new SceneObject(object);
-  const rectangle4 = new SceneObject(object);
-  const rectangle5 = new SceneObject(object);
-  const rectangle6 = new SceneObject(object);
+  scene.add(grid);
+  scene.add(rectangle);
 
-  scene.add(rectangle1);
-  scene.add(rectangle2);
-  scene.add(rectangle3);
-  scene.add(rectangle4);
-  scene.add(rectangle5);
-  scene.add(rectangle6);
-
-  rectangle1.update({ x: 20, y: 20, color: 'green' });
-  rectangle2.update({ x: 10, y: 10, color: 'blue' });
+  grid.update({ label: 'grid' });
+  rectangle.update({ label: 'rectangle' });
 
   let lastDrawTime = 0;
   const fps = 60;
@@ -45,20 +46,14 @@
   function draw() {
     if ((Date.now() - lastDrawTime) > 1000 / fps) {
       scene.draw();
-      rectangle1.update({ x: Math.random() * 400, y: Math.random() * 400, color: 'green' });
-      // rectangle.update({ x: 300, y: 30, color: 'green' });
-      // rectangle.update({ x: Math.random() * 300, y: 30, color: 'green' });
-      // rectangle2.update({ x: Math.random() * 400, y: Math.random() * 400, color: 'blue' });
+
+      rectangle.update({ x: Math.random() * 300, y: Math.random() * 300, color: 'green' });
 
       lastDrawTime = Date.now();
     }
 
     window.requestAnimationFrame(draw);
   }
-
-  // setInterval(() => {
-  //   draw();
-  // }, 500);
 
   draw();
   // Basic avgerage time to render: 0.04ms - 0.05ms
