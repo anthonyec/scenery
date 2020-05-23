@@ -44,10 +44,9 @@ export default class Scene extends EventEmitter {
   add(sceneObject) {
     const id = `object_${this.idCounter}`;
 
-    this.displayList[id] = sceneObject;
-
     sceneObject.id = id;
 
+    this.displayList[id] = sceneObject;
     this.idCounter += 1;
   }
 
@@ -56,11 +55,13 @@ export default class Scene extends EventEmitter {
   }
 
   getAll(sceneObjectIds = []) {
-    const ids = sceneObjectIds.length === 0 ?
-      Object.keys(this.displayList) :
-      sceneObjectIds;
+    const shouldGetAll = sceneObjectIds.length === 0;
 
-    return ids.map((sceneObjectId) => {
+    if (shouldGetAll) {
+      return Object.values(this.displayList);
+    }
+
+    return sceneObjectIds.map((sceneObjectId) => {
       return this.get(sceneObjectId);
     });
   }
