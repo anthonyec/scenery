@@ -24,7 +24,7 @@ function createTimeTracker(samples = 50, budget = 16) {
   }
 }
 
-const track = createTimeTracker(50, 10);
+const track = createTimeTracker(50, 16);
 
 export default class Scene extends EventEmitter {
   idCounter = 0;
@@ -46,6 +46,8 @@ export default class Scene extends EventEmitter {
 
     this.displayList[id] = sceneObject;
 
+    sceneObject.id = id;
+
     this.idCounter += 1;
   }
 
@@ -54,16 +56,54 @@ export default class Scene extends EventEmitter {
   }
 
   getAll(sceneObjectIds = []) {
-    return sceneObjectIds.map((sceneObjectId) => {
+    const ids = sceneObjectIds.length === 0 ?
+      Object.keys(this.displayList) :
+      sceneObjectIds;
+
+    return ids.map((sceneObjectId) => {
       return this.get(sceneObjectId);
     });
   }
 
   query(params) {}
 
-  hit(x, y, options = {}) { }
+  hit(x, y) {
+    const objects = this.getAll();
 
-  hitWithinBounds(x, y, width, height, options = {}) {}
+    return objects.filter((object) => {
+      return x >= object.props.x
+          && y >= object.props.y
+          && x <= object.props.x + object.props.width
+          && y <= object.props.y + object.props.height;
+    });
+  }
+
+  hitWithinBounds(x, y, width, height) {
+    const objects = this.getAll();
+
+    return objects.filter((object) => {
+      if (object.id === 'object_0') {
+        return;
+      }
+
+      const leftEdgeA = x;
+      const rightEdgeA = x + width
+
+      const leftEdgeB = object.props.x;
+      const rightEdgeB = (object.props.x + object.props.width);
+
+      const topEdgeA = y;
+      const bottomEdgeA = y + height;
+
+      const topEdgeB = object.props.y;
+      const bottomEdgeB = (object.props.y + object.props.height);
+
+      const leftRightEdgeCheck = (rightEdgeA > leftEdgeB && leftEdgeA < rightEdgeB);
+      const topBottomEdgeCheck = (bottomEdgeA > topEdgeB && topEdgeA < bottomEdgeB);
+
+      return leftRightEdgeCheck &&  topBottomEdgeCheck;
+    });
+  }
 
   draw() {
     const startDrawTime = window.performance.now();
@@ -81,20 +121,14 @@ export default class Scene extends EventEmitter {
         this.dirtyBounds.height + this.clearRectPadding * 2
       );
 
-      // Debug clearing rect position.
-      // this.context.strokeStyle = 'red';
-      // this.context.strokeRect(
-      //   this.dirtyBounds.x,
-      //   this.dirtyBounds.y,
-      //   this.dirtyBounds.width,
-      //   this.dirtyBounds.height
-      // );
+      const hits = this.hitWithinBounds(
+        this.dirtyBounds.x,
+        this.dirtyBounds.y,
+        this.dirtyBounds.width,
+        this.dirtyBounds.height
+      );
 
-      // this.context.stroke();
-
-      dirtyObjectIds.forEach((sceneObjectId) => {
-        const object = this.get(sceneObjectId);
-
+      [...hits, ...this.getAll(dirtyObjectIds)].forEach((object) => {
         object.draw({
           context: this.context
         });
@@ -103,7 +137,6 @@ export default class Scene extends EventEmitter {
 
     const endDrawTime = window.performance.now();
     const totalDrawTime = endDrawTime - startDrawTime;
-
     track(totalDrawTime);
   }
 
