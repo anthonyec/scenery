@@ -14,18 +14,24 @@
     canvas: document.querySelector('canvas')
   });
 
-  const grid = new SceneObject({
+  const gridObject = {
     draw: ({ context, x, y, width, height, color }) => {
-      const colors = ['red', 'blue', 'green', 'purple'];
-      context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
+      // console.log('draw grid');
+      // const colors = ['red', 'blue', 'green', 'purple'];
+      // context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
+      context.fillStyle = 'blue';
 
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {
-          context.fillRect(5 * x, 5 * y, 2, 2);
+          context.fillRect(x + (5 * x), y + (5 * y), 2, 2);
         }
       }
     }
-  });
+  }
+
+  const grid = new SceneObject(gridObject);
+  const grid2 = new SceneObject(gridObject);
+  const grid3 = new SceneObject(gridObject);
 
   const rectangle = new SceneObject({
     draw: ({ context, x, y, width, height, color }) => {
@@ -35,9 +41,13 @@
   });
 
   scene.add(grid);
+  scene.add(grid2);
+  scene.add(grid3);
   scene.add(rectangle);
 
   grid.update({ label: 'grid' });
+  grid2.update({ label: 'grid', x: 100, y: 100 });
+  grid3.update({ label: 'grid', x: 200, y: 200 });
   rectangle.update({ label: 'rectangle' });
 
   let lastDrawTime = 0;

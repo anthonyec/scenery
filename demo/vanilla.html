@@ -47,6 +47,18 @@
       }
     }
 
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
+        context.fillRect(100 + (5 * x), 100 + (5 * y), 2, 2);
+      }
+    }
+
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
+        context.fillRect(200 + (5 * x), 200 + (5 * y), 2, 2);
+      }
+    }
+
     context.fillStyle = 'green';
     context.fillRect(Math.random() * 300, Math.random() * 300, 100, 100);
 

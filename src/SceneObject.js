@@ -1,7 +1,7 @@
 import EventEmitter from "./EventEmitter";
 
 export default class SceneObject extends EventEmitter {
-  context = null;
+  cache = null;
   isDirty = true;
   children = [];
   prevProps = {};
@@ -16,7 +16,7 @@ export default class SceneObject extends EventEmitter {
     super();
 
     this.internalDraw = options.draw;
-    this.context = document.createElement('canvas').getContext('2d');
+    this.cache = document.createElement('canvas').getContext('2d');
 
     this.prevProps = this.props;
   }
@@ -37,7 +37,8 @@ export default class SceneObject extends EventEmitter {
   draw(props) {
     this.internalDraw({
       ...this.props,
-      ...props
+      ...props,
+      context: this.cache
     });
 
     this.isDirty = false;

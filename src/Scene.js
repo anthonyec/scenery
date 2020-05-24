@@ -28,12 +28,13 @@ const track = createTimeTracker(50, 16);
 
 export default class Scene extends EventEmitter {
   idCounter = 0;
+  clearRectPadding = 1;
+
   displayList = {};
 
   constructor(options) {
     super();
 
-    this.clearRectPadding = 1;
     this.canvasWidth = options.canvas.width;
     this.canvasHeight = options.canvas.height;
     this.context = options.canvas.getContext('2d');
@@ -125,10 +126,38 @@ export default class Scene extends EventEmitter {
         this.dirtyBounds.height
       );
 
-      [...hits, ...this.getAll(dirtyObjectIds)].forEach((object) => {
+      this.getAll(dirtyObjectIds).forEach((object) => {
         object.draw({
+          x: 0,
+          y: 0,
           context: this.context
         });
+
+        this.context.drawImage(
+          object.cache.canvas,
+          0,
+          0,
+          object.props.width,
+          object.props.height,
+          object.props.x,
+          object.props.y,
+          object.props.width,
+          object.props.height
+        );
+      });
+
+      hits.forEach((object) => {
+        this.context.drawImage(
+          object.cache.canvas,
+          0,
+          0,
+          object.props.width,
+          object.props.height,
+          object.props.x,
+          object.props.y,
+          object.props.width,
+          object.props.height
+        )
       });
     }
 
