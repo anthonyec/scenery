@@ -9,14 +9,14 @@ export default class SceneObject extends EventEmitter {
     x: 0,
     y: 0,
     width: 100,
-    height: 100
+    height: 100,
   };
 
   constructor(options) {
     super();
 
     this.internalDraw = options.draw;
-    this.cache = document.createElement('canvas').getContext('2d');
+    this.cache = document.createElement("canvas").getContext("2d");
 
     this.prevProps = this.props;
   }
@@ -28,7 +28,7 @@ export default class SceneObject extends EventEmitter {
 
     this.props = {
       ...oldProps,
-      ...newProps
+      ...newProps,
     };
 
     this.isDirty = true;
@@ -38,7 +38,7 @@ export default class SceneObject extends EventEmitter {
     this.internalDraw({
       ...this.props,
       ...props,
-      context: this.cache
+      context: this.cache,
     });
 
     this.isDirty = false;

@@ -1,4 +1,4 @@
-import EventEmitter from './EventEmitter';
+import EventEmitter from "./EventEmitter";
 
 function createTimeTracker(samples = 50, budget = 16) {
   let index = 0;
@@ -18,10 +18,10 @@ function createTimeTracker(samples = 50, budget = 16) {
     }, 0);
 
     const average = total / times.length;
-    const costPercent = ((average / budget) * 100).toFixed(1) + '%';
+    const costPercent = ((average / budget) * 100).toFixed(1) + "%";
 
-    console.log('average (ms):', average.toFixed(2), 'cost:', costPercent);
-  }
+    console.log("average (ms):", average.toFixed(2), "cost:", costPercent);
+  };
 }
 
 const track = createTimeTracker(50, 16);
@@ -38,7 +38,7 @@ export default class Scene extends EventEmitter {
 
     this.canvasWidth = options.canvas.width;
     this.canvasHeight = options.canvas.height;
-    this.context = options.canvas.getContext('2d');
+    this.context = options.canvas.getContext("2d");
   }
 
   init() {}
@@ -75,10 +75,12 @@ export default class Scene extends EventEmitter {
     const objects = this.getAll();
 
     return objects.filter((object) => {
-      return x >= object.props.x
-          && y >= object.props.y
-          && x <= object.props.x + object.props.width
-          && y <= object.props.y + object.props.height;
+      return (
+        x >= object.props.x &&
+        y >= object.props.y &&
+        x <= object.props.x + object.props.width &&
+        y <= object.props.y + object.props.height
+      );
     });
   }
 
@@ -91,21 +93,23 @@ export default class Scene extends EventEmitter {
       }
 
       const leftEdgeA = x;
-      const rightEdgeA = x + width
+      const rightEdgeA = x + width;
 
       const leftEdgeB = object.props.x;
-      const rightEdgeB = (object.props.x + object.props.width);
+      const rightEdgeB = object.props.x + object.props.width;
 
       const topEdgeA = y;
       const bottomEdgeA = y + height;
 
       const topEdgeB = object.props.y;
-      const bottomEdgeB = (object.props.y + object.props.height);
+      const bottomEdgeB = object.props.y + object.props.height;
 
-      const leftRightEdgeCheck = (rightEdgeA > leftEdgeB && leftEdgeA < rightEdgeB);
-      const topBottomEdgeCheck = (bottomEdgeA > topEdgeB && topEdgeA < bottomEdgeB);
+      const leftRightEdgeCheck =
+        rightEdgeA > leftEdgeB && leftEdgeA < rightEdgeB;
+      const topBottomEdgeCheck =
+        bottomEdgeA > topEdgeB && topEdgeA < bottomEdgeB;
 
-      return leftRightEdgeCheck &&  topBottomEdgeCheck;
+      return leftRightEdgeCheck && topBottomEdgeCheck;
     });
   }
 
@@ -117,7 +121,6 @@ export default class Scene extends EventEmitter {
     const hasDirtyObjects = dirtyObjectIds.length > 0;
 
     if (hasDirtyObjects) {
-
       /* Get area that needs cleaning. */
       this.dirtyBounds = this._getBoundsForObjects(dirtyObjectIds, true);
 
@@ -139,18 +142,19 @@ export default class Scene extends EventEmitter {
 
       /* Check existing objects that affected by new object. */
       /* TODO: Be smarter if object has nothing above it in the stack */
-      const objectsThatNeedRecompositing = this.getAll(dirtyObjectIds).map((object) => {
-        return this.hitWithinBounds(
-          object.props.x,
-          object.props.y,
-          object.props.width,
-          object.props.height,
-          {
-            exclude: [object.id]
-          }
-        );
-      }).flat();
-
+      const objectsThatNeedRecompositing = this.getAll(dirtyObjectIds)
+        .map((object) => {
+          return this.hitWithinBounds(
+            object.props.x,
+            object.props.y,
+            object.props.width,
+            object.props.height,
+            {
+              exclude: [object.id],
+            }
+          );
+        })
+        .flat();
 
       /* Draw objects (to their internal cache) that have been updated. */
       const dirtyObjects = this.getAll(dirtyObjectIds);
@@ -159,12 +163,16 @@ export default class Scene extends EventEmitter {
         dirtyObjects.forEach((object) => {
           object.draw({
             x: 0,
-            y: 0
+            y: 0,
           });
         });
       }
 
-      const objectsToComposite = [...hits, ...dirtyObjects, ...objectsThatNeedRecompositing].reduce((mem, object) => {
+      const objectsToComposite = [
+        ...hits,
+        ...dirtyObjects,
+        ...objectsThatNeedRecompositing,
+      ].reduce((mem, object) => {
         if (!mem[object.id]) {
           mem[object.id] = object;
         }
@@ -193,7 +201,7 @@ export default class Scene extends EventEmitter {
           object.props.y,
           object.props.width,
           object.props.height
-        )
+        );
       });
     }
 
@@ -211,13 +219,17 @@ export default class Scene extends EventEmitter {
   }
 
   _getBoundsForObjects(sceneObjectIds = [], usePrevProps = false) {
-    const props = usePrevProps ? 'prevProps' : 'props';
+    const props = usePrevProps ? "prevProps" : "props";
 
     const objects = this.getAll(sceneObjectIds);
     const objectLeftPositions = objects.map((object) => object[props].x);
     const objectTopPositions = objects.map((object) => object[props].y);
-    const objectRightPositions = objects.map((object) => object[props].x + object[props].width);
-    const objectBottomPositions = objects.map((object) => object[props].y + object[props].height);
+    const objectRightPositions = objects.map(
+      (object) => object[props].x + object[props].width
+    );
+    const objectBottomPositions = objects.map(
+      (object) => object[props].y + object[props].height
+    );
 
     const minX = Math.min(...objectLeftPositions);
     const maxX = Math.max(...objectRightPositions);
@@ -230,7 +242,7 @@ export default class Scene extends EventEmitter {
       y: minY,
       width: maxX - minX,
       height: maxY - minY,
-    }
+    };
   }
 
   _getDirtyObjectIds() {

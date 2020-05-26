@@ -1,4 +1,4 @@
-import { createNanoEvents } from 'nanoevents';
+import { createNanoEvents } from "nanoevents";
 
 export default class EventEmitter {
   constructor() {

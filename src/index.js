@@ -1,7 +1,4 @@
-import Scene from './Scene';
-import SceneObject from './SceneObject';
+import Scene from "./Scene";
+import SceneObject from "./SceneObject";
 
-export {
-  Scene,
-  SceneObject
-};
+export { Scene, SceneObject };

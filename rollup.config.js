@@ -1,11 +1,11 @@
-import resolve from '@rollup/plugin-node-resolve';
+import resolve from "@rollup/plugin-node-resolve";
 
 export default {
-  input: 'src/index.js',
+  input: "src/index.js",
   output: {
-    file: './dist/scenebox.js',
-    format: 'iife',
-    name: 'SceneBox'
+    file: "./dist/scenebox.js",
+    format: "iife",
+    name: "SceneBox",
   },
-  plugins: [resolve()]
+  plugins: [resolve()],
 };
