@@ -31,6 +31,7 @@ export default class Scene extends EventEmitter {
   clearRectPadding = 1;
 
   displayList = {};
+  displayOrder = [];
 
   constructor(options) {
     super();
@@ -47,7 +48,10 @@ export default class Scene extends EventEmitter {
 
     sceneObject.id = id;
 
+    // Add to display list and display order.
     this.displayList[id] = sceneObject;
+    this.displayOrder.push(id);
+
     this.idCounter += 1;
   }
 
@@ -67,8 +71,6 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  query(params) {}
-
   hit(x, y) {
     const objects = this.getAll();
 
@@ -80,10 +82,14 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  hitWithinBounds(x, y, width, height) {
+  hitWithinBounds(x, y, width, height, options = { exclude: [] }) {
     const objects = this.getAll();
 
     return objects.filter((object) => {
+      if (options.exclude.includes(object.id)) {
+        return false;
+      }
+
       const leftEdgeA = x;
       const rightEdgeA = x + width
 
@@ -103,15 +109,19 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  draw() {
+  draw(dontDraw) {
     const startDrawTime = window.performance.now();
 
+    /* Get objects marked as dirty. */
     const dirtyObjectIds = this._getDirtyObjectIds();
     const hasDirtyObjects = dirtyObjectIds.length > 0;
 
     if (hasDirtyObjects) {
+
+      /* Get area that needs cleaning. */
       this.dirtyBounds = this._getBoundsForObjects(dirtyObjectIds, true);
 
+      /* Clean dirty area. */
       this.context.clearRect(
         this.dirtyBounds.x - this.clearRectPadding,
         this.dirtyBounds.y - this.clearRectPadding,
@@ -119,6 +129,7 @@ export default class Scene extends EventEmitter {
         this.dirtyBounds.height + this.clearRectPadding * 2
       );
 
+      /* Check for existing objects that are affected by cleaning. */
       const hits = this.hitWithinBounds(
         this.dirtyBounds.x,
         this.dirtyBounds.y,
@@ -126,27 +137,52 @@ export default class Scene extends EventEmitter {
         this.dirtyBounds.height
       );
 
-      this.getAll(dirtyObjectIds).forEach((object) => {
-        object.draw({
-          x: 0,
-          y: 0,
-          context: this.context
-        });
-
-        this.context.drawImage(
-          object.cache.canvas,
-          0,
-          0,
-          object.props.width,
-          object.props.height,
+      /* Check existing objects that affected by new object. */
+      /* TODO: Be smarter if object has nothing above it in the stack */
+      const objectsThatNeedRecompositing = this.getAll(dirtyObjectIds).map((object) => {
+        return this.hitWithinBounds(
           object.props.x,
           object.props.y,
           object.props.width,
-          object.props.height
+          object.props.height,
+          {
+            exclude: [object.id]
+          }
         );
+      }).flat();
+
+
+      /* Draw objects (to their internal cache) that have been updated. */
+      const dirtyObjects = this.getAll(dirtyObjectIds);
+
+      if (!dontDraw) {
+        dirtyObjects.forEach((object) => {
+          object.draw({
+            x: 0,
+            y: 0
+          });
+        });
+      }
+
+      const objectsToComposite = [...hits, ...dirtyObjects, ...objectsThatNeedRecompositing].reduce((mem, object) => {
+        if (!mem[object.id]) {
+          mem[object.id] = object;
+        }
+
+        return mem;
+      }, {});
+
+      /* Sort objects in correct compositing order. */
+      /* TODO: Ensure this works */
+      const sorted = Object.values(objectsToComposite).sort((a, b) => {
+        const indexOfA = this.displayOrder.indexOf(a.id);
+        const indexOfB = this.displayOrder.indexOf(b.id);
+
+        return indexOfA - indexOfB;
       });
 
-      hits.forEach((object) => {
+      /* Composite objects that need compositing. */
+      sorted.forEach((object) => {
         this.context.drawImage(
           object.cache.canvas,
           0,
@@ -205,7 +241,6 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  _update() {}
   _move(id, layerIndex) {}
   _remove(id) {}
 }

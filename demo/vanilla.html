@@ -35,37 +35,43 @@
 
   const context = document.querySelector('canvas').getContext('2d');
 
+  let lastDrawTime = 0;
+  const fps = 60;
+
   function draw() {
-    var start = window.performance.now();
-    context.clearRect(0, 0, 500, 500);
+    if ((Date.now() - lastDrawTime) > 1000 / fps) {
+      var start = window.performance.now();
+      context.clearRect(0, 0, 500, 500);
 
-    context.fillStyle = 'blue';
-
-    for (let y = 0; y < 20; y++) {
-      for (let x = 0; x < 20; x++) {
-        context.fillRect(5 * x, 5 * y, 2, 2);
+      context.fillStyle = 'blue';
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 20; x++) {
+          context.fillRect(5 * x, 5 * y, 2, 2);
+        }
       }
-    }
 
-    for (let y = 0; y < 20; y++) {
-      for (let x = 0; x < 20; x++) {
-        context.fillRect(100 + (5 * x), 100 + (5 * y), 2, 2);
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 20; x++) {
+          context.fillRect(200 + (5 * x), 200 + (5 * y), 2, 2);
+        }
       }
-    }
 
-    for (let y = 0; y < 20; y++) {
-      for (let x = 0; x < 20; x++) {
-        context.fillRect(200 + (5 * x), 200 + (5 * y), 2, 2);
+      context.fillStyle = 'green';
+      context.fillRect(Math.random() * 400, Math.random() * 400, 100, 100);
+      context.fillStyle = 'blue';
+
+      for (let y = 0; y < 20; y++) {
+        for (let x = 0; x < 20; x++) {
+          context.fillRect(100 + (5 * x), 100 + (5 * y), 2, 2);
+        }
       }
+
+      var end = window.performance.now();
+      var time = end - start;
+
+      track(time);
+      lastDrawTime = Date.now();
     }
-
-    context.fillStyle = 'green';
-    context.fillRect(Math.random() * 300, Math.random() * 300, 100, 100);
-
-    var end = window.performance.now();
-    var time = end - start;
-
-    track(time);
 
     window.requestAnimationFrame(draw);
   }
