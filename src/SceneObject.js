@@ -3,7 +3,12 @@ import EventEmitter from "./EventEmitter";
 export default class SceneObject extends EventEmitter {
   cache = null;
   isDirty = true;
+
+  // TODO: Rename, maybe this isDirty and isDirty becomes isUpdated?
+  requiresRedraw = true;
+
   children = [];
+  propsThatDontRequireRedraw = ['x', 'y'];
   prevProps = {};
   props = {
     x: 0,
@@ -31,10 +36,23 @@ export default class SceneObject extends EventEmitter {
       ...newProps,
     };
 
+    // TODO: Rename.
+    const propsThatRequireRedraw = Object.keys(newProps).filter((propKey) => {
+      return !this.propsThatDontRequireRedraw.includes(propKey);
+    });
+
     this.isDirty = true;
+
+    if (propsThatRequireRedraw.length) {
+      this.requiresRedraw = true;
+    }
   }
 
   draw(props) {
+    if (!this.requiresRedraw) {
+      return;
+    }
+
     this.internalDraw({
       ...this.props,
       ...props,
@@ -42,5 +60,6 @@ export default class SceneObject extends EventEmitter {
     });
 
     this.isDirty = false;
+    this.requiresRedraw = false;
   }
 }

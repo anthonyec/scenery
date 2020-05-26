@@ -70,11 +70,11 @@
     if ((Date.now() - lastDrawTime) > 1000 / fps) {
       scene.draw();
 
-      rectangle.update({ x: Math.random() * 400, y: Math.random() * 400, color: 'green' });
-      // grid.update({ x: Math.random() * 400, y: 100, color: 'green' });
-      // grid2.update({ x: Math.random() * 400, y: 200, color: 'green' });
-      // grid3.update({ x: Math.random() * 400, y: 300, color: 'green' });
-      // rectangle.update({ x: 150, y: 150, color: 'green' });
+      rectangle.update({ x: Math.random() * 400, y: Math.random() * 400 });
+      // grid.update({ x: Math.random() * 400, y: 100 });
+      // grid2.update({ x: Math.random() * 400, y: 200 });
+      // grid3.update({ x: Math.random() * 400, y: 300 });
+      // rectangle.update({ x: 150, y: 150 });
 
       lastDrawTime = Date.now();
     }
