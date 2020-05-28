@@ -43,7 +43,8 @@
       var start = window.performance.now();
       context.clearRect(0, 0, 500, 500);
 
-      context.fillStyle = 'blue';
+      context.fillStyle = 'rgba(0, 0, 255, 0.05)';
+
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {
           context.fillRect(5 * x, 5 * y, 2, 2);
@@ -58,7 +59,8 @@
 
       context.fillStyle = 'green';
       context.fillRect(Math.random() * 400, Math.random() * 400, 100, 100);
-      context.fillStyle = 'blue';
+      context.fillStyle = 'rgba(0, 0, 255, 0.05)';
+
 
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {

@@ -14,12 +14,19 @@
     canvas: document.querySelector('canvas')
   });
 
+  const rectangleObject = {
+    draw: ({ context, x, y, width, height, color }) => {
+      context.fillStyle = color;
+      context.fillRect(x, y, width, height);
+    }
+  };
+
   const gridObject = {
     draw: ({ context, x, y, width, height, color, label = '' }) => {
       // console.log('draw grid');
       // const colors = ['red', 'blue', 'green', 'purple'];
       // context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
-      context.fillStyle = 'blue';
+      context.fillStyle = 'rgba(0, 0, 255, 0.05)';
 
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {
@@ -38,18 +45,16 @@
   const grid2 = new SceneObject(gridObject);
   const grid3 = new SceneObject(gridObject);
 
-  const rectangle = new SceneObject({
-    draw: ({ context, x, y, width, height, color }) => {
-      context.fillStyle = color;
-      context.fillRect(x, y, width, height);
-    }
-  });
+  const rectangle = new SceneObject(rectangleObject);
+  const rectangle2 = new SceneObject(rectangleObject);
 
-  scene.add(grid);
+  scene.add(rectangle2);
+
   scene.add(grid3);
   scene.add(rectangle);
   scene.add(grid2);
 
+  rectangle2.update({ color: 'rgba(255, 0, 0, 0.05)' });
   rectangle.update({ label: 'rectangle' });
   grid.update({ label: 'grid 1' });
   grid2.update({ label: 'grid 2', x: 100, y: 100 });
@@ -70,7 +75,8 @@
     if ((Date.now() - lastDrawTime) > 1000 / fps) {
       scene.draw();
 
-      rectangle.update({ x: Math.random() * 400, y: Math.random() * 400 });
+      // rectangle.update({ x: Math.random() * 400, y: Math.random() * 400 });
+      rectangle.update({ x: 10 + (Math.random() * 50), y: 10 + (Math.random() * 50) });
       // grid.update({ x: Math.random() * 400, y: 100 });
       // grid2.update({ x: Math.random() * 400, y: 200 });
       // grid3.update({ x: Math.random() * 400, y: 300 });
