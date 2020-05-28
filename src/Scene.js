@@ -84,35 +84,6 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  hitWithinBounds(x, y, width, height, options = { exclude: [] }) {
-    const objects = this.getAll();
-
-    return objects.filter((object) => {
-      if (options.exclude.includes(object.id)) {
-        return false;
-      }
-
-      const leftEdgeA = x;
-      const rightEdgeA = x + width;
-
-      const leftEdgeB = object.props.x;
-      const rightEdgeB = object.props.x + object.props.width;
-
-      const topEdgeA = y;
-      const bottomEdgeA = y + height;
-
-      const topEdgeB = object.props.y;
-      const bottomEdgeB = object.props.y + object.props.height;
-
-      const leftRightEdgeCheck =
-        rightEdgeA > leftEdgeB && leftEdgeA < rightEdgeB;
-      const topBottomEdgeCheck =
-        bottomEdgeA > topEdgeB && topEdgeA < bottomEdgeB;
-
-      return leftRightEdgeCheck && topBottomEdgeCheck;
-    });
-  }
-
   draw() {
     const startDrawTime = window.performance.now();
 
@@ -154,11 +125,11 @@ export default class Scene extends EventEmitter {
     dirtyObjects.forEach((dirtyObject) => {
       dirtyObject.draw({
         x: 0,
-        y: 0
+        y: 0,
       });
     });
 
-    sortedAffectedObjects.forEach((affectedObject, index) => {
+    sortedAffectedObjects.forEach((affectedObject) => {
       const { object, intersection, localIntersection } = affectedObject;
 
       this.context.drawImage(
@@ -169,8 +140,8 @@ export default class Scene extends EventEmitter {
         localIntersection.height,
         intersection.x,
         intersection.y,
-        object.props.width,
-        object.props.height
+        intersection.width,
+        intersection.height
       );
     });
 
@@ -179,56 +150,11 @@ export default class Scene extends EventEmitter {
     track(totalDrawTime);
   }
 
-  _forEachSceneObject(func) {
-    Object.keys(this.displayList).forEach((sceneObjectId, index) => {
-      const object = this.get(sceneObjectId);
-
-      func(object, index);
-    });
-  }
-
-  _getBoundsForObjects(sceneObjectIds = [], usePrevProps = false) {
-    const props = usePrevProps ? "prevProps" : "props";
-
-    const objects = this.getAll(sceneObjectIds);
-    const objectLeftPositions = objects.map((object) => object[props].x);
-    const objectTopPositions = objects.map((object) => object[props].y);
-    const objectRightPositions = objects.map(
-      (object) => object[props].x + object[props].width
-    );
-    const objectBottomPositions = objects.map(
-      (object) => object[props].y + object[props].height
-    );
-
-    const minX = Math.min(...objectLeftPositions);
-    const maxX = Math.max(...objectRightPositions);
-
-    const minY = Math.min(...objectTopPositions);
-    const maxY = Math.max(...objectBottomPositions);
-
-    return {
-      x: minX,
-      y: minY,
-      width: maxX - minX,
-      height: maxY - minY,
-    };
-  }
-
-  _getDirtyObjectIds() {
-    return Object.keys(this.displayList).filter((sceneObjectId) => {
-      const object = this.get(sceneObjectId);
-
-      return object.isDirty;
-    });
-  }
-
-  _getBoxLocalRelative(a, b) {
+  _getPositionRelativeTo(a, b) {
     return {
       x: b.x - a.x,
-      y: b.y - a.y,
-      width: a.width,
-      height: a.height,
-    }
+      y: b.y - a.y
+    };
   }
 
   _getBoxIntersection(a, b) {
@@ -286,10 +212,15 @@ export default class Scene extends EventEmitter {
 
     return hitObjects.map((object) => {
       const intersection = this._getBoxIntersection(boundingBox, object.props);
-      const localIntersection = this._getBoxLocalRelative(
+      const localPosition = this._getPositionRelativeTo(
         object.props,
-        intersection,
+        intersection
       );
+      const localIntersection = {
+        ...localPosition,
+        width: intersection.width,
+        height: intersection.height,
+      };
 
       return {
         object,

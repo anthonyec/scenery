@@ -15,7 +15,7 @@
   });
 
   const rectangleObject = {
-    draw: ({ context, x, y, width, height, color = 'rgba(0, 0, 0, 0.5)', label = 'Rect' }) => {
+    draw: ({ context, x, y, width, height, color = 'rgba(0, 0, 255, 0.5)', label = 'Rect' }) => {
       context.fillStyle = color;
       context.fillRect(x, y, width, height);
 
@@ -31,7 +31,7 @@
       // console.log('draw grid');
       // const colors = ['red', 'blue', 'green', 'purple'];
       // context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
-      context.fillStyle = 'rgba(0, 0, 255, 0.5)';
+      context.fillStyle = 'rgba(255, 0, 0, 0.1)';
 
       for (let y = 0; y < 20; y++) {
         for (let x = 0; x < 20; x++) {
@@ -53,26 +53,26 @@
   const rectangle = new SceneObject(rectangleObject);
   const rectangle2 = new SceneObject(rectangleObject);
 
-
-  // scene.add(grid3);
-  // scene.add(grid2);
+  scene.add(grid3);
+  scene.add(grid2);
 
   scene.add(rectangle);
   scene.add(rectangle2);
 
-  rectangle.update({ x: 0, y: 0, color: 'rgba(0, 0, 255, 0.5)', label: 'rect1' });
-  rectangle2.update({ x: 50, y: 55, color: 'green', label: 'rect2' });
+  rectangle.update({ x: 10, y: 10, height: 165, label: 'rect1' });
   // rectangle.update({ color: 'rgba(255, 0, 0, 0.5)' });
   // rectangle.update({ label: 'rectangle' });
   // grid.update({ label: 'grid 1' });
-  // grid2.update({ label: 'grid 2', x: 100, y: 100 });
-  // grid3.update({ label: 'grid 3', x: 200, y: 200 });
+  grid2.update({ label: 'grid 2', x: 100, y: 100 });
+  grid3.update({ label: 'grid 3', x: 200, y: 200 });
 
   scene.draw();
 
-  rectangle2.update({ x: 20, y: 15 });
-
+  rectangle2.update({ x: 50, y: 55, color: 'green', label: 'rect2' });
   scene.draw();
+
+  // rectangle2.update({ x: 20, y: 15 });
+
 
 
 
@@ -84,9 +84,10 @@
   const fps = 60;
   function draw() {
     if ((Date.now() - lastDrawTime) > 1000 / fps) {
-      scene.draw();
 
-      rectangle2.update({ x: 10 + (Math.random() * 50), y: 10 + (Math.random() * 50) });
+      rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
+
+      scene.draw();
       // rectangle2.update({ x: Math.random() * 400, y: Math.random() * 400 });
       // grid.update({ x: Math.random() * 400, y: 100 });
       // grid2.update({ x: Math.random() * 400, y: 200 });

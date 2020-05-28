@@ -44,6 +44,10 @@ export default class SceneObject extends EventEmitter {
     this.isDirty = true;
 
     if (propsThatRequireRedraw.length) {
+      // TODO: Move to better place.
+      this.cache.canvas.width = this.props.width;
+      this.cache.canvas.height = this.props.height;
+
       this.requiresRedraw = true;
     }
   }
