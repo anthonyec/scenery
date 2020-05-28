@@ -113,97 +113,66 @@ export default class Scene extends EventEmitter {
     });
   }
 
-  draw(dontDraw) {
+  draw() {
     const startDrawTime = window.performance.now();
 
-    /* Get objects marked as dirty. */
-    const dirtyObjectIds = this._getDirtyObjectIds();
-    const hasDirtyObjects = dirtyObjectIds.length > 0;
+    const dirtyObjects = this._getDirtyObjects();
 
-    if (hasDirtyObjects) {
-      /* Get area that needs cleaning. */
-      this.dirtyBounds = this._getBoundsForObjects(dirtyObjectIds, true);
+    const dirtyObjectPreviousBoundBoxes = this._getObjectsPreviousBoundBox(
+      dirtyObjects
+    );
 
-      /* Clean dirty area. */
-      this.context.clearRect(
-        this.dirtyBounds.x - this.clearRectPadding,
-        this.dirtyBounds.y - this.clearRectPadding,
-        this.dirtyBounds.width + this.clearRectPadding * 2,
-        this.dirtyBounds.height + this.clearRectPadding * 2
-      );
+    const dirtyObjectCurrentBoundingBoxes = this._getObjectsCurrentBoundBox(
+      dirtyObjects
+    );
 
-      /* Check for existing objects that are affected by cleaning. */
-      const hits = this.hitWithinBounds(
-        this.dirtyBounds.x,
-        this.dirtyBounds.y,
-        this.dirtyBounds.width,
-        this.dirtyBounds.height
-      );
+    const clearBoundingBox = this._getBoundingBox([
+      ...dirtyObjectPreviousBoundBoxes,
+      ...dirtyObjectCurrentBoundingBoxes,
+    ]);
 
-      /* Check existing objects that affected by new object. */
-      /* TODO: Be smarter if object has nothing above it in the stack */
-      const objectsThatNeedRecompositing = this.getAll(dirtyObjectIds)
-        .map((object) => {
-          return this.hitWithinBounds(
-            object.props.x,
-            object.props.y,
-            object.props.width,
-            object.props.height,
-            {
-              exclude: [object.id],
-            }
-          );
-        })
-        .flat();
+    const clearBoundingBoxWithPadding = this._applyPaddingToBoundingBox(
+      clearBoundingBox,
+      2
+    );
 
-      /* Draw objects (to their internal cache) that have been updated. */
-      const dirtyObjects = this.getAll(dirtyObjectIds);
+    // affectedObjects:HitWithinBounds
+    // interface HitWithinBounds { object: SceneObject, intersection: BoundingBox }
+    const affectedObjects = this._hitWithinBounds(clearBoundingBoxWithPadding, {
+      intersections: true,
+    });
 
-      if (!dontDraw) {
-        dirtyObjects.forEach((object) => {
-          object.draw({
-            x: 0,
-            y: 0,
-          });
-        });
-      }
+    const sortedAffectedObjects = affectedObjects.reverse();
 
-      const objectsToComposite = [
-        ...hits,
-        ...dirtyObjects,
-        ...objectsThatNeedRecompositing,
-      ].reduce((mem, object) => {
-        if (!mem[object.id]) {
-          mem[object.id] = object;
-        }
+    this.context.clearRect(
+      clearBoundingBoxWithPadding.x,
+      clearBoundingBoxWithPadding.y,
+      clearBoundingBoxWithPadding.width,
+      clearBoundingBoxWithPadding.height
+    );
 
-        return mem;
-      }, {});
-
-      /* Sort objects in correct compositing order. */
-      /* TODO: Ensure this works */
-      const sorted = Object.values(objectsToComposite).sort((a, b) => {
-        const indexOfA = this.displayOrder.indexOf(a.id);
-        const indexOfB = this.displayOrder.indexOf(b.id);
-
-        return indexOfA - indexOfB;
+    dirtyObjects.forEach((dirtyObject) => {
+      dirtyObject.draw({
+        x: 0,
+        y: 0
       });
+    });
 
-      /* Composite objects that need compositing. */
-      sorted.forEach((object) => {
-        this.context.drawImage(
-          object.cache.canvas,
-          0,
-          0,
-          object.props.width,
-          object.props.height,
-          object.props.x,
-          object.props.y,
-          object.props.width,
-          object.props.height
-        );
-      });
-    }
+    sortedAffectedObjects.forEach((affectedObject, index) => {
+      const { object, intersection, localIntersection } = affectedObject;
+
+      this.context.drawImage(
+        object.cache.canvas,
+        localIntersection.x,
+        localIntersection.y,
+        localIntersection.width,
+        localIntersection.height,
+        intersection.x,
+        intersection.y,
+        object.props.width,
+        object.props.height
+      );
+    });
 
     const endDrawTime = window.performance.now();
     const totalDrawTime = endDrawTime - startDrawTime;
@@ -249,6 +218,140 @@ export default class Scene extends EventEmitter {
     return Object.keys(this.displayList).filter((sceneObjectId) => {
       const object = this.get(sceneObjectId);
 
+      return object.isDirty;
+    });
+  }
+
+  _getBoxLocalRelative(a, b) {
+    return {
+      x: b.x - a.x,
+      y: b.y - a.y,
+      width: a.width,
+      height: a.height,
+    }
+  }
+
+  _getBoxIntersection(a, b) {
+    const rightA = a.x + a.width;
+    const bottomA = a.y + a.height;
+
+    const rightB = b.x + b.width;
+    const bottomB = b.y + b.height;
+
+    const maxLeft = Math.max(a.x, b.x);
+    const minRight = Math.min(rightA, rightB);
+
+    const maxTop = Math.max(a.y, b.y);
+    const minBottom = Math.min(bottomA, bottomB);
+
+    const x = maxLeft;
+    const y = maxTop;
+    const width = minRight - maxLeft;
+    const height = minBottom - maxTop;
+
+    const noOverlap = width === 0 || height === 0;
+
+    if (noOverlap) {
+      return null;
+    }
+
+    return { x, y, width, height };
+  }
+
+  // TODO: Sort by display order
+  _hitWithinBounds(boundingBox) {
+    const { x, y, width, height } = boundingBox;
+    const objects = this.getAll();
+
+    const hitObjects = objects.filter((object) => {
+      const leftEdgeA = x;
+      const rightEdgeA = x + width;
+
+      const leftEdgeB = object.props.x;
+      const rightEdgeB = object.props.x + object.props.width;
+
+      const topEdgeA = y;
+      const bottomEdgeA = y + height;
+
+      const topEdgeB = object.props.y;
+      const bottomEdgeB = object.props.y + object.props.height;
+
+      const leftRightEdgeCheck =
+        rightEdgeA > leftEdgeB && leftEdgeA < rightEdgeB;
+      const topBottomEdgeCheck =
+        bottomEdgeA > topEdgeB && topEdgeA < bottomEdgeB;
+
+      return leftRightEdgeCheck && topBottomEdgeCheck;
+    });
+
+    return hitObjects.map((object) => {
+      const intersection = this._getBoxIntersection(boundingBox, object.props);
+      const localIntersection = this._getBoxLocalRelative(
+        object.props,
+        intersection,
+      );
+
+      return {
+        object,
+        intersection,
+        localIntersection
+      };
+    });
+  }
+
+  _applyPaddingToBoundingBox(box, padding) {
+    return {
+      x: box.x - padding,
+      y: box.y - padding,
+      width: box.width + padding * 2,
+      height: box.height + padding * 2,
+    };
+  }
+
+  _getBoundingBox(boxes) {
+    const leftPositions = boxes.map((box) => box.x);
+    const topPositions = boxes.map((box) => box.y);
+    const rightPositions = boxes.map((box) => box.x + box.width);
+    const bottomPositions = boxes.map((box) => box.y + box.height);
+
+    const minX = Math.min(...leftPositions);
+    const maxX = Math.max(...rightPositions);
+
+    const minY = Math.min(...topPositions);
+    const maxY = Math.max(...bottomPositions);
+
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    };
+  }
+
+  _getObjectsPreviousBoundBox(objects) {
+    return objects.map((object) => {
+      return {
+        x: object.prevProps.x,
+        y: object.prevProps.y,
+        width: object.prevProps.width,
+        height: object.prevProps.height,
+      };
+    });
+  }
+
+  _getObjectsCurrentBoundBox(objects) {
+    return objects.map((object) => {
+      return {
+        x: object.props.x,
+        y: object.props.y,
+        width: object.props.width,
+        height: object.props.height,
+      };
+    });
+  }
+
+  _getDirtyObjects() {
+    return this.getAll().filter((object) => {
       return object.isDirty;
     });
   }

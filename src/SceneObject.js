@@ -8,7 +8,7 @@ export default class SceneObject extends EventEmitter {
   requiresRedraw = true;
 
   children = [];
-  propsThatDontRequireRedraw = ['x', 'y'];
+  propsThatDontRequireRedraw = ["x", "y"];
   prevProps = {};
   props = {
     x: 0,

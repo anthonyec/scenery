@@ -1,0 +1,16 @@
+    // CALCULATE CLEAR BOUNDS
+    // Get dirty objects
+    // Get bounds of previous dirty object positions
+    // Get bounds of current dirty objects positions
+
+    // CALCULATE COMPOSITE REGIONS
+    // Get affected objects that hit bounds
+    // Find intersection of bounds of each object
+    // Sort intersecting objects by display order
+
+    // CLEAR
+    // Clear dirty bounds
+
+    // COMPOSITE
+    // Draw all dirty objects to their own cache
+    // Draw intersection portion of each object to screen
