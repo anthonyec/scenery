@@ -27,14 +27,13 @@ function createTimeTracker(samples = 50, budget = 16) {
 const track = createTimeTracker(50, 16);
 
 export default class Scene extends EventEmitter {
-  idCounter = 0;
-  clearRectPadding = 1;
-
-  displayList = {};
-  displayOrder = [];
-
   constructor(options) {
     super();
+
+    this.idCounter = 0;
+
+    this.displayList = {};
+    this.displayOrder = [];
 
     this.canvasWidth = options.canvas.width;
     this.canvasHeight = options.canvas.height;
@@ -109,17 +108,15 @@ export default class Scene extends EventEmitter {
 
     // affectedObjects:HitWithinBounds
     // interface HitWithinBounds { object: SceneObject, intersection: BoundingBox }
-    const affectedObjects = this._hitWithinBounds(clearBoundingBoxWithPadding, {
-      intersections: true,
-    });
+    const affectedObjects = this._hitWithinBounds(clearBoundingBoxWithPadding);
 
     const sortedAffectedObjects = affectedObjects.reverse();
 
     this.context.clearRect(
-      clearBoundingBoxWithPadding.x,
-      clearBoundingBoxWithPadding.y,
-      clearBoundingBoxWithPadding.width,
-      clearBoundingBoxWithPadding.height
+      Math.floor(clearBoundingBoxWithPadding.x),
+      Math.floor(clearBoundingBoxWithPadding.y),
+      Math.ceil(clearBoundingBoxWithPadding.width),
+      Math.ceil(clearBoundingBoxWithPadding.height)
     );
 
     dirtyObjects.forEach((dirtyObject) => {
@@ -134,14 +131,18 @@ export default class Scene extends EventEmitter {
 
       this.context.drawImage(
         object.cache.canvas,
-        localIntersection.x,
-        localIntersection.y,
-        localIntersection.width,
-        localIntersection.height,
-        intersection.x,
-        intersection.y,
-        intersection.width,
-        intersection.height
+
+        // Source
+        Math.floor(localIntersection.x),
+        Math.floor(localIntersection.y),
+        Math.ceil(localIntersection.width),
+        Math.ceil(localIntersection.height),
+
+        // Destination
+        Math.floor(intersection.x),
+        Math.floor(intersection.y),
+        Math.ceil(intersection.width),
+        Math.ceil(intersection.height)
       );
     });
 
