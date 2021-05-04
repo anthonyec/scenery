@@ -6,10 +6,11 @@
 
 <canvas width="500" height="500"></canvas>
 
-<script src="../dist/scenebox.js"></script>
+<script src="../dist/scenery.js"></script>
 
 <script>
-  const { Scene, SceneObject } = SceneBox;
+  const { Scene, SceneObject } = Scenery;
+
   const scene = new Scene({
     canvas: document.querySelector('canvas')
   });
@@ -28,9 +29,6 @@
 
   const gridObject = {
     draw: ({ context, x, y, width, height, color, label = '' }) => {
-      // console.log('draw grid');
-      // const colors = ['red', 'blue', 'green', 'purple'];
-      // context.fillStyle = colors[Math.floor(Math.random() * colors.length - 1)];
       context.fillStyle = 'rgba(255, 0, 0, 0.1)';
 
       for (let y = 0; y < 20; y++) {
@@ -38,11 +36,6 @@
           context.fillRect(x + (5 * x), y + (5 * y), 2, 2);
         }
       }
-
-      // context.fillStyle = 'silver';
-      // context.fillRect(0, height - 22, 50, 15);
-      // context.fillStyle = 'blue';
-      // context.fillText(label, 10, height - 11);
     }
   }
 
@@ -60,25 +53,12 @@
   scene.add(rectangle2);
 
   rectangle.update({ x: 10, y: 10, height: 165, label: 'rect1' });
-  // rectangle.update({ color: 'rgba(255, 0, 0, 0.5)' });
-  // rectangle.update({ label: 'rectangle' });
-  // grid.update({ label: 'grid 1' });
+  rectangle2.update({ x: 50, y: 55, color: 'green', label: 'rect2' });
   grid2.update({ label: 'grid 2', x: 100, y: 100 });
   grid3.update({ label: 'grid 3', x: 200, y: 200 });
 
   scene.draw();
 
-  rectangle2.update({ x: 50, y: 55, color: 'green', label: 'rect2' });
-  scene.draw();
-
-  // rectangle2.update({ x: 20, y: 15 });
-
-
-
-
-  // scene.draw();
-
-  // scene.draw();
 
   let lastDrawTime = 0;
   const fps = 60;
@@ -87,12 +67,10 @@
 
       rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
 
+      // This won't work, 1 update can only happen at a time
+      // rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
+
       scene.draw();
-      // rectangle2.update({ x: Math.random() * 400, y: Math.random() * 400 });
-      // grid.update({ x: Math.random() * 400, y: 100 });
-      // grid2.update({ x: Math.random() * 400, y: 200 });
-      // grid3.update({ x: Math.random() * 400, y: 300 });
-      // rectangle.update({ x: 150, y: 150 });
 
       lastDrawTime = Date.now();
     }

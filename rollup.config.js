@@ -3,9 +3,9 @@ import resolve from "@rollup/plugin-node-resolve";
 export default {
   input: "src/index.js",
   output: {
-    file: "./dist/scenebox.js",
+    file: "./dist/scenery.js",
     format: "iife",
-    name: "SceneBox",
+    name: "Scenery",
   },
   plugins: [resolve()],
 };
