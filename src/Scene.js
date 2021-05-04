@@ -1,5 +1,7 @@
 import EventEmitter from "./EventEmitter";
 
+import CanvasRenderer from './CanvasRenderer';
+
 function createTimeTracker(samples = 50, budget = 16) {
   let index = 0;
   const times = new Array(samples).fill(0);
@@ -20,7 +22,7 @@ function createTimeTracker(samples = 50, budget = 16) {
     const average = total / times.length;
     const costPercent = ((average / budget) * 100).toFixed(1) + "%";
 
-    console.log("average (ms):", average.toFixed(2), "cost:", costPercent);
+    // console.log("average (ms):", average.toFixed(2), "cost:", costPercent);
   };
 }
 
@@ -38,6 +40,8 @@ export default class Scene extends EventEmitter {
     this.canvasWidth = options.canvas.width;
     this.canvasHeight = options.canvas.height;
     this.context = options.canvas.getContext("2d");
+
+    this.renderer = new CanvasRenderer({ context: this.context });
   }
 
   init() {}
@@ -112,7 +116,7 @@ export default class Scene extends EventEmitter {
 
     const sortedAffectedObjects = affectedObjects.reverse();
 
-    this.context.clearRect(
+    this.renderer.clearRect(
       Math.floor(clearBoundingBoxWithPadding.x),
       Math.floor(clearBoundingBoxWithPadding.y),
       Math.ceil(clearBoundingBoxWithPadding.width),
@@ -129,7 +133,7 @@ export default class Scene extends EventEmitter {
     sortedAffectedObjects.forEach((affectedObject) => {
       const { object, intersection, localIntersection } = affectedObject;
 
-      this.context.drawImage(
+      this.renderer.drawImage(
         object.cache.canvas,
 
         // Source

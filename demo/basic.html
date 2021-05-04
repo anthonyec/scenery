@@ -59,13 +59,17 @@
 
   scene.draw();
 
+  // This causes dirty objects to forever be true?
+  // rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
+
+
 
   let lastDrawTime = 0;
-  const fps = 60;
+  const fps = 1;
   function draw() {
     if ((Date.now() - lastDrawTime) > 1000 / fps) {
 
-      rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
+      // rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
 
       // This won't work, 1 update can only happen at a time
       // rectangle2.update({ x: 30 + (Math.random() * 50), y: 30 + (Math.random() * 50) });
